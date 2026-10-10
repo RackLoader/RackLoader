@@ -1,18 +1,36 @@
-﻿# RackLoader
+**[🇷🇺 Русская версия](README.ru.md)**
 
-Загрузчик модов для Data Center на BepInEx 6 IL2CPP и .NET 6.
+# RackLoader
 
-## Формат `.rkm` версии 1
+A BepInEx-based mod loader and mod development toolkit for **Data Center**. RackLoader targets BepInEx 6 IL2CPP and .NET 6.
 
-`.rkm` — ZIP-архив с `manifest.json`, открытым ключом и подписью, DLL-модулями и ассетами. Манифест содержит SHA-256 хеши файлов и точные версии зависимостей. Он подписывается RSA-PSS/SHA-256.
+## Features
 
-Загрузчик проверяет подпись издателя через реестр RackLoader Publisher. URL Worker берётся из `BepInEx/plugins/RackLoader/worker-url.txt` или настройки `[Security] SigningServiceUrl`. Последний успешный список доверенных ключей кэшируется для офлайн-запуска.
+- Loads mods packaged as `.rkm` archives.
+- Verifies package signatures, module hashes, and publisher trust.
+- Resolves mod dependencies by exact version and loads them in isolated contexts.
+- Includes a NuGet SDK that builds and signs `.rkm` files from an MSBuild project.
+- Supports mod assets such as textures and models.
 
-Зависимости указываются как ID и точная версия. Загрузчик разрешает граф зависимостей и загружает требуемые версии раньше зависимых модов.
+## Requirements
 
-## Создание мода через NuGet
+- Data Center installed on Windows.
+- BepInEx 6 IL2CPP for the game.
+- .NET 6 SDK to build RackLoader or a mod.
 
-Пакет `RackLoader.ModSdk` подключает API `IRackMod`, ссылки на установленные BepInEx и Data Center сборки и запускает упаковщик после `dotnet build`. Добавь NuGet-пакет и поля мода в `.csproj`:
+## Build and install RackLoader
+
+From the repository root, run:
+
+```powershell
+dotnet build .\RackLoader.sln -p:DeployToGame=true
+```
+
+This builds RackLoader and deploys it to the configured Data Center installation.
+
+## Create a mod with the NuGet SDK
+
+Add the package and mod metadata to the mod project's `.csproj`:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -30,9 +48,9 @@
 </Project>
 ```
 
-SDK по умолчанию ищет игру здесь: `D:\SteamLibrary\steamapps\common\Data Center`. При необходимости переопредели `<RackModGameDir>`.
+The SDK uses `D:\SteamLibrary\steamapps\common\Data Center` as the default game directory. Set `<RackModGameDir>` in the project to use a different installation.
 
-Реализуй публичную точку входа:
+Implement the mod entry point with `IRackMod`:
 
 ```csharp
 using RackLoader.Contracts;
@@ -48,9 +66,17 @@ public sealed class WeatherMod : IRackMod
 }
 ```
 
-### Подпись и сборка
+Build the project in Release mode:
 
-Полученный на сайте издателя токен передавай через переменную окружения, не сохраняя его в `.csproj`:
+```powershell
+dotnet build .\ExampleWeather.csproj -c Release
+```
+
+The SDK invokes the packer after the build and creates `bin\Release\net6.0\ExampleWeather-1.0.0.rkm`. Copy the package to `Data Center\BepInEx\plugins\RackLoader\Mods`. Installing the NuGet SDK does not install the loader into the game.
+
+## Sign a mod
+
+Get a publisher token from the publisher site and pass it through the `RACKLOADER_DEVELOPER_KEY` environment variable. Keep the token out of the project file and source control:
 
 ```powershell
 $env:RACKLOADER_DEVELOPER_KEY = "rkd_..."
@@ -58,19 +84,19 @@ dotnet build .\ExampleWeather.csproj -c Release
 Remove-Item Env:RACKLOADER_DEVELOPER_KEY
 ```
 
-После сборки появится `bin\Release\net6.0\ExampleWeather-1.0.0.rkm`. Упаковщик подписывает пакет через Worker; адрес сервиса уже задан в SDK. Для своего Worker можно переопределить `RackModSigningServiceUrl` или `RACKLOADER_SIGNING_URL`.
+The packer sends the package to the configured publisher Worker for signing. The default service URL is included in the SDK. Override it with the `RackModSigningServiceUrl` MSBuild property or the `RACKLOADER_SIGNING_URL` environment variable.
 
-Скопируй `.rkm` в `Data Center\BepInEx\plugins\RackLoader\Mods`. Сам NuGet SDK не устанавливает загрузчик в игру.
+The loader retrieves trusted publisher keys from the RackLoader Publisher Worker. Its URL can be configured in `BepInEx/plugins/RackLoader/worker-url.txt` or with `[Security] SigningServiceUrl`. The last successfully retrieved publisher list is cached for offline startup.
 
-### Ассеты и зависимости
+## Include assets and dependencies
 
-Ассеты берутся из каталога `Assets` рядом с `.csproj` и открываются через контекст мода:
+Put assets in an `Assets` directory next to the mod project file. Open an asset through the mod context:
 
 ```csharp
 using var icon = context.OpenAsset("textures/icon.png");
 ```
 
-Дополнительные DLL и зависимости можно указать так:
+Declare modules and dependencies in the project:
 
 ```xml
 <ItemGroup>
@@ -80,29 +106,38 @@ using var icon = context.OpenAsset("textures/icon.png");
 </ItemGroup>
 ```
 
-`RackModDependency` записывает в манифест точные ID и версию, но не компилирует ссылку. Если используешь типы зависимости в исходниках, добавь обычный `ProjectReference` или `Reference`. Её `.rkm` также должна находиться в папке `Mods`.
+`RackModDependency` records the dependency ID and exact version in the manifest; it does not add a compile-time reference. Add a `ProjectReference` or `Reference` if the mod source uses dependency types. The dependency's `.rkm` package must also be present in the `Mods` directory.
 
-### Локальная подпись и неподписанные пакеты
+## Local signing and unsigned packages
 
-Для локальной подписи создай зашифрованный ключ:
+To create a local signing key pair:
 
 ```powershell
 dotnet run --project .\RackLoader.Packer\RackLoader.Packer.csproj -- keygen --private-key D:\RackLoaderKeys\publisher.private.pem --public-key D:\RackLoaderKeys\publisher.public.pem
 ```
 
-Укажи `<RackModPrivateKey>D:\RackLoaderKeys\publisher.private.pem</RackModPrivateKey>` в `.csproj` и перед сборкой задай пароль ключа в `RACKLOADER_RKM_KEY_PASSWORD`. Fingerprint такого ключа нужно добавить в `TrustedPublisherKeyIds` конфигурации RackLoader.
+Set `<RackModPrivateKey>D:\RackLoaderKeys\publisher.private.pem</RackModPrivateKey>` in the mod project and provide the key password through `RACKLOADER_RKM_KEY_PASSWORD` before building. Add the key fingerprint to `TrustedPublisherKeyIds` in the RackLoader configuration.
 
-Неподписанный архив можно собрать с `<RackModUnsigned>true</RackModUnsigned>`. Его загрузка отдельно разрешается только параметром `AllowUnsignedMods=true`; по умолчанию он выключен.
+To build an unsigned archive, set `<RackModUnsigned>true</RackModUnsigned>`. Loading unsigned mods requires `AllowUnsignedMods=true` in the loader configuration; this option is disabled by default.
 
-## Сборка и публикация NuGet SDK
+## Pack and publish the NuGet SDK
 
-Проект пакета, README и скрипт публикации находятся в `RackLoader.ModSdk`. Команда `.\RackLoader.ModSdk\publish.ps1` соберёт `.nupkg` в `artifacts\nuget`. После настройки NuGet.org API key пакет можно опубликовать явным запуском `.\RackLoader.ModSdk\publish.ps1 -Push`.
-
-## Установка загрузчика в игру
+The SDK project and package README are in `RackLoader.ModSdk`. Create a NuGet package with:
 
 ```powershell
-dotnet build .\RackLoader.sln -p:DeployToGame=true
+.\RackLoader.ModSdk\publish.ps1
 ```
 
-Код подписи подтверждает издателя и целостность файлов, но не делает доверенный мод безопасным для запуска.
+The package is written to `artifacts\nuget`. To publish it, set `NUGET_API_KEY` and run the script with `-Push`:
 
+```powershell
+$env:NUGET_API_KEY = "..."
+.\RackLoader.ModSdk\publish.ps1 -Push
+Remove-Item Env:NUGET_API_KEY
+```
+
+## Publisher service
+
+The Cloudflare Worker, activation site, and deployment instructions are in [RackLoader.Cloudflare](RackLoader.Cloudflare/README.md).
+
+> Package signatures verify publisher identity and file integrity. They do not sandbox mod code.
