@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="$(MSBuildThisFileDirectory)..\..\RackLoader.ModSdk\build\RackLoader.ModSdk.targets" />
+</Project>

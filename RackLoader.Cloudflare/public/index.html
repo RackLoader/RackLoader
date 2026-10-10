@@ -1,0 +1,98 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d0d13">
+  <meta name="description" content="Manage trusted Rack Mod publishers and issue secure activation invites." data-i18n-content="meta.description">
+  <title>RackLoader Publisher</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <header class="topbar shell">
+    <a class="brand" href="/" aria-label="RackLoader Publisher">
+      <span class="brand-mark"><span></span><span></span><span></span></span>
+      <span class="brand-copy"><strong>RACK<span>LOADER</span></strong><small>PUBLISHER NETWORK</small></span>
+    </a>
+    <div class="topbar-right">
+      <div class="network-status"><span class="status-dot"></span><span data-i18n="header.network">Signing &amp; trust</span><span class="top-divider"></span><span class="status-label" data-i18n="header.online">WORKER ONLINE</span></div>
+      <div class="language-switch" role="group" aria-label="Language" data-i18n-aria-label="language.label">
+        <button type="button" data-language="en" aria-pressed="true">EN</button>
+        <span aria-hidden="true"></span>
+        <button type="button" data-language="ru" aria-pressed="false">RU</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero" id="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-line"></span><span id="hero-eyebrow" data-i18n="hero.admin.eyebrow">PUBLISHER CONTROL</span></div>
+        <h1 id="hero-title" data-i18n-html="hero.admin.title">Trust<br><em>starts here.</em></h1>
+        <p id="hero-description" data-i18n="hero.admin.description">The Rack Mod publisher console. Sign in with your administrator token to issue invitations and manage trusted publishers.</p>
+        <div class="hero-points" id="hero-points" data-i18n-html="hero.admin.points">
+          <span><b>01</b> Issue publisher invitations</span>
+          <span><b>02</b> Manage signing keys</span>
+          <span><b>03</b> Maintain trusted publishers</span>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+        <div class="core-card"><div class="core-top"><span>RKM / SIGNATURE</span><span class="core-live"></span></div><div class="core-glyph"><span>R</span><i></i></div><div class="core-bottom"><span>TRUST LAYER</span><b>ACTIVE</b></div></div>
+        <div class="float-tag tag-key"><span class="tag-icon">⌘</span><span><small>KEY ID</small><b>SHA-256</b></span></div>
+        <div class="float-tag tag-lock"><span class="tag-icon">◈</span><span><small>PRIVATE KEY</small><b>ENCRYPTED</b></span></div>
+        <div class="art-spark spark-a"></div><div class="art-spark spark-b"></div>
+      </div>
+    </section>
+
+    <section class="portal-card auth-card" id="admin-login-view">
+      <div class="portal-heading">
+        <div><div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="login.eyebrow">ADMINISTRATOR ACCESS</span></div><h2 data-i18n="login.title">Sign in to the control panel</h2></div>
+        <div class="portal-mark" aria-hidden="true">R<span>/</span>K</div>
+      </div>
+      <p class="auth-caption" data-i18n="login.caption">Enter the administrator token from your local deployment file.</p>
+      <form id="admin-login-form" class="admin-login">
+        <label class="field"><span data-i18n="login.tokenLabel">ADMINISTRATOR TOKEN</span><input id="admin-token" type="password" autocomplete="current-password" placeholder="rka_••••••••••••••••" data-i18n-placeholder="login.tokenPlaceholder" required></label>
+        <button class="button button-primary" type="submit"><span data-i18n="login.submit">Sign in</span><span aria-hidden="true">↗</span></button>
+      </form>
+      <div id="admin-message-login" class="message" aria-live="polite"></div>
+    </section>
+
+    <section class="portal-card admin-card hidden" id="admin-area">
+      <div class="portal-heading">
+        <div><div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="admin.eyebrow">PUBLISHER MANAGEMENT</span></div><h2 data-i18n="admin.title">Trust center</h2></div>
+        <button id="admin-logout" class="text-button" type="button"><span data-i18n="admin.logout">Sign out</span> <span aria-hidden="true">↗</span></button>
+      </div>
+      <div class="admin-toolbar invite-toolbar"><div><h3 data-i18n="invite.title">Create an invitation</h3><p data-i18n="invite.description">The link can be activated once to create a publisher signing key.</p></div><span class="step-pill"><span data-i18n="invite.step">ISSUER</span> <i>/</i> 01</span></div>
+      <form id="invite-form" class="invite-form">
+        <label class="field"><span data-i18n="invite.nameLabel">PUBLISHER LABEL</span><input name="displayName" placeholder="Team / developer" data-i18n-placeholder="invite.namePlaceholder" required maxlength="100"></label>
+        <label class="field"><span><span data-i18n="invite.modLabel">MOD ID</span> <i data-i18n="common.optional">OPTIONAL</i></span><input name="allowedModId" placeholder="e.g. com.rackworks.map" data-i18n-placeholder="invite.modPlaceholder"></label>
+        <label class="field field-small"><span data-i18n="invite.expiryLabel">EXPIRES IN</span><select name="expiresInDays" aria-label="Invite expiry" data-i18n-aria-label="invite.expiryLabel"><option value="7" data-i18n="invite.days7">7 days</option><option value="1" data-i18n="invite.day1">1 day</option><option value="30" data-i18n="invite.days30">30 days</option></select></label>
+        <button class="button button-primary" type="submit"><span data-i18n="invite.create">Create invite link</span><span aria-hidden="true">↗</span></button>
+      </form>
+      <div id="invite-result" class="result-card hidden" aria-live="polite"></div>
+      <div id="admin-message" class="message" aria-live="polite"></div>
+      <div class="directory-heading"><div><h3 data-i18n="directory.title">Publisher registry</h3><p data-i18n="directory.description">Active public keys are trusted by RackLoader.</p></div><button id="refresh-developers" class="icon-button" type="button" aria-label="Refresh list" data-i18n-aria-label="directory.refresh">↻</button></div>
+      <div id="developer-list" class="developer-list"><div class="empty-state" data-i18n="directory.loading">Loading registry…</div></div>
+    </section>
+
+    <section class="portal-card activation-card hidden" id="activation-view" aria-live="polite">
+      <div id="activation-prompt">
+        <div class="activation-emblem"><span>R</span><i></i></div>
+        <div class="activation-status"><span class="status-dot"></span><span data-i18n="activation.ready">INVITATION READY</span></div>
+        <h2 data-i18n="activation.title">Activate your publisher key</h2>
+        <p data-i18n="activation.description">This invitation is assigned to you. Activate it to create a key for signing mods. Your publishing token will only be shown once.</p>
+        <button class="button button-primary activation-button" id="activate-key-button" type="button"><span data-i18n="activation.button">Activate key</span><span aria-hidden="true">↗</span></button>
+        <div id="activation-message" class="message" aria-live="polite"></div>
+        <div class="activation-foot"><span data-i18n="activation.once">ONE-TIME ACTIVATION</span><span>RACK MOD <b>01</b></span></div>
+      </div>
+      <div id="activation-result" class="hidden"></div>
+    </section>
+  </main>
+
+  <footer class="shell footer"><span>RACKLOADER PUBLISHER NETWORK</span><span data-i18n="footer.format">RACK MOD FORMAT <b>01</b></span></footer>
+</body>
+</html>

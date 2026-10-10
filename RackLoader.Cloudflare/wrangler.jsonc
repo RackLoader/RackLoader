@@ -1,0 +1,31 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "rackloader-publisher",
+  "main": "src/index.js",
+  "compatibility_date": "2025-04-01",
+  "workers_dev": true,
+  "secrets": {
+    "required": [
+      "ADMIN_TOKEN",
+      "KEY_ENCRYPTION_KEY"
+    ]
+  },
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "rackloader-publishers",
+      "database_id": "4c525c97-81d8-4f3b-8848-b90a56ecfcd1",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

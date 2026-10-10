@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>RackLoader</AssemblyName>
+    <RootNamespace>RackLoader</RootNamespace>
+    <GameDir Condition="'$(GameDir)' == ''">D:\SteamLibrary\steamapps\common\Data Center</GameDir>
+    <BepInExDir Condition="'$(BepInExDir)' == ''">$(GameDir)\BepInEx</BepInExDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RackLoader.Contracts\RackLoader.Contracts.csproj" />
+    <ProjectReference Include="..\RackLoader.Rkm\RackLoader.Rkm.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BepInEx.Core">
+      <HintPath>$(BepInExDir)\core\BepInEx.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="BepInEx.Unity.IL2CPP">
+      <HintPath>$(BepInExDir)\core\BepInEx.Unity.IL2CPP.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>$(BepInExDir)\core\Il2CppInterop.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="DeployToGame" AfterTargets="Build" Condition="'$(DeployToGame)' == 'true'">
+    <MakeDir Directories="$(BepInExDir)\plugins\RackLoader" />
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)RackLoader.Contracts.dll;$(TargetDir)RackLoader.Rkm.dll"
+          DestinationFolder="$(BepInExDir)\plugins\RackLoader" />
+    <Copy Condition="Exists('$(MSBuildProjectDirectory)\..\RackLoader.Cloudflare\.deployment\worker-url.txt')"
+          SourceFiles="$(MSBuildProjectDirectory)\..\RackLoader.Cloudflare\.deployment\worker-url.txt"
+          DestinationFolder="$(BepInExDir)\plugins\RackLoader" />
+  </Target>
+
+</Project>

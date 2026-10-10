@@ -1,0 +1,85 @@
+﻿<Project>
+  <PropertyGroup>
+    <RackModPack Condition="'$(RackModPack)' == ''">true</RackModPack>
+    <RackModUnsigned Condition="'$(RackModUnsigned)' == ''">false</RackModUnsigned>
+    <RackModName Condition="'$(RackModName)' == ''">$(AssemblyName)</RackModName>
+    <RackModVersion Condition="'$(RackModVersion)' == ''">$(Version)</RackModVersion>
+    <RackModAssetsDirectory Condition="'$(RackModAssetsDirectory)' == ''">$(MSBuildProjectDirectory)\Assets</RackModAssetsDirectory>
+    <RackModGameDir Condition="'$(RackModGameDir)' == ''">D:\SteamLibrary\steamapps\common\Data Center</RackModGameDir>
+    <RackModBepInExDir Condition="'$(RackModBepInExDir)' == ''">$(RackModGameDir)\BepInEx</RackModBepInExDir>
+
+    <_RackLoaderModSdkSourceRoot Condition="Exists('$(MSBuildThisFileDirectory)..\tools\net6.0\RackLoader.Packer.dll')">$(MSBuildThisFileDirectory)..\</_RackLoaderModSdkSourceRoot>
+    <_RackLoaderModSdkSourceRoot Condition="'$(_RackLoaderModSdkSourceRoot)' == ''">$(MSBuildThisFileDirectory)..\..\</_RackLoaderModSdkSourceRoot>
+    <RackLoaderPackerAssembly Condition="'$(RackLoaderPackerAssembly)' == ''">$(_RackLoaderModSdkSourceRoot)tools\net6.0\RackLoader.Packer.dll</RackLoaderPackerAssembly>
+    <RackLoaderPackerAssembly Condition="!Exists('$(RackLoaderPackerAssembly)')">$(_RackLoaderModSdkSourceRoot)RackLoader.Packer\bin\$(Configuration)\net6.0\RackLoader.Packer.dll</RackLoaderPackerAssembly>
+
+    <RackModSigningServiceUrl Condition="'$(RackModSigningServiceUrl)' == '' and '$(RACKLOADER_SIGNING_URL)' != ''">$(RACKLOADER_SIGNING_URL)</RackModSigningServiceUrl>
+    <RackModSigningServiceUrl Condition="'$(RackModSigningServiceUrl)' == ''">https://rackloader-publisher.pawmi1606.workers.dev</RackModSigningServiceUrl>
+  </PropertyGroup>
+
+  <ItemGroup Condition="!Exists('$(_RackLoaderModSdkSourceRoot)tools/net6.0/RackLoader.Packer.dll')">
+    <ProjectReference Include="$(_RackLoaderModSdkSourceRoot)RackLoader.Contracts\RackLoader.Contracts.csproj" />
+    <ProjectReference Include="$(_RackLoaderModSdkSourceRoot)RackLoader.Packer\RackLoader.Packer.csproj"
+                      ReferenceOutputAssembly="false" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RackModPack)' == 'true'">
+    <Reference Include="BepInEx.Core">
+      <HintPath>$(RackModBepInExDir)\core\BepInEx.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="BepInEx.Unity.IL2CPP">
+      <HintPath>$(RackModBepInExDir)\core\BepInEx.Unity.IL2CPP.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(RackModBepInExDir)\core\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>$(RackModBepInExDir)\core\Il2CppInterop.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(RackModBepInExDir)\core\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(RackModBepInExDir)\interop\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>$(RackModBepInExDir)\interop\Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="BuildRackModPackage" AfterTargets="Build" Condition="'$(RackModPack)' == 'true'">
+    <Error Condition="'$(RackModId)' == ''" Text="RackModId is required when RackLoader.ModSdk is referenced." />
+    <Error Condition="'$(RackModEntryType)' == ''" Text="RackModEntryType must name the public IRackMod implementation." />
+    <Error Condition="'$(RackModVersion)' == ''" Text="RackModVersion is required." />
+    <Error Condition="'$(RackModUnsigned)' != 'true' and '$(RackModDeveloperKey)' == '' and '$(RACKLOADER_DEVELOPER_KEY)' == '' and '$(RackModPrivateKey)' == ''" Text="Set RACKLOADER_DEVELOPER_KEY for Worker signing or RackModPrivateKey for local signing." />
+    <Error Condition="'$(RackModUnsigned)' != 'true' and '$(RackModDeveloperKey)' == '' and '$(RACKLOADER_DEVELOPER_KEY)' == '' and '$(RACKLOADER_RKM_KEY_PASSWORD)' == ''" Text="Set RACKLOADER_RKM_KEY_PASSWORD before building a locally signed Rack Mod." />
+
+    <PropertyGroup>
+      <_RackModPackagePath Condition="'$(RackModPackagePath)' == ''">$(TargetDir)$(AssemblyName)-$(RackModVersion).rkm</_RackModPackagePath>
+      <_RackModPrivateKeyArg Condition="'$(RackModPrivateKey)' != ''">--private-key &quot;$(RackModPrivateKey)&quot;</_RackModPrivateKeyArg>
+      <_RackModSigningUrlArg Condition="'$(RackModSigningServiceUrl)' != ''">--signing-url &quot;$(RackModSigningServiceUrl)&quot;</_RackModSigningUrlArg>
+      <_RackModUnsignedArg Condition="'$(RackModUnsigned)' == 'true'">--unsigned true</_RackModUnsignedArg>
+    </PropertyGroup>
+    <ItemGroup>
+      <_RackModModule Include="$(TargetPath)" />
+      <_RackModModule Include="@(RackModModule)" />
+      <_RackModModuleArg Include="@(_RackModModule-&gt;'--module &quot;%(FullPath)&quot;')" />
+      <_RackModDependencyArg Include="@(RackModDependency-&gt;'--dependency &quot;%(Identity)|%(Version)&quot;')" />
+    </ItemGroup>
+
+    <Message Importance="high" Text="Packing $(RackModId) $(RackModVersion) to $(_RackModPackagePath)" />
+    <Exec Condition="'$(RackModDeveloperKey)' != ''"
+          EnvironmentVariables="RACKLOADER_DEVELOPER_KEY=$(RackModDeveloperKey)"
+          Command="dotnet &quot;$(RackLoaderPackerAssembly)&quot; pack --id &quot;$(RackModId)&quot; --name &quot;$(RackModName)&quot; --version &quot;$(RackModVersion)&quot; --entry-module &quot;$(TargetFileName)&quot; --entry-type &quot;$(RackModEntryType)&quot; $(_RackModPrivateKeyArg) --output &quot;$(_RackModPackagePath)&quot; --assets &quot;$(RackModAssetsDirectory)&quot; $(_RackModSigningUrlArg) $(_RackModUnsignedArg) @(_RackModModuleArg, ' ') @(_RackModDependencyArg, ' ')" />
+    <Exec Condition="'$(RackModDeveloperKey)' == ''"
+          Command="dotnet &quot;$(RackLoaderPackerAssembly)&quot; pack --id &quot;$(RackModId)&quot; --name &quot;$(RackModName)&quot; --version &quot;$(RackModVersion)&quot; --entry-module &quot;$(TargetFileName)&quot; --entry-type &quot;$(RackModEntryType)&quot; $(_RackModPrivateKeyArg) --output &quot;$(_RackModPackagePath)&quot; --assets &quot;$(RackModAssetsDirectory)&quot; $(_RackModSigningUrlArg) $(_RackModUnsignedArg) @(_RackModModuleArg, ' ') @(_RackModDependencyArg, ' ')" />
+  </Target>
+</Project>
+

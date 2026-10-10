@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <PackageId>RackLoader.ModSdk</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>RackLoader</Authors>
+    <Description>MSBuild packaging and signing SDK for Rack Mod (.rkm) projects targeting Data Center.</Description>
+    <PackageLicenseExpression>CC-BY-NC-4.0</PackageLicenseExpression>
+    <PackageTags>DataCenter;RackMod;BepInEx;MSBuild;Modding</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)..\artifacts\nuget</PackageOutputPath>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+
+    <NoPackageAnalysis>false</NoPackageAnalysis>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RackLoader.Contracts\RackLoader.Contracts.csproj"
+                      ReferenceOutputAssembly="false" PrivateAssets="all" />
+    <ProjectReference Include="..\RackLoader.Packer\RackLoader.Packer.csproj"
+                      ReferenceOutputAssembly="false" PrivateAssets="all" />
+
+    <None Update="README.md" Pack="true" PackagePath="" />
+    <None Update="build\RackLoader.ModSdk.targets" Pack="true" PackagePath="build/RackLoader.ModSdk.targets" />
+
+    <None Include="..\RackLoader.Contracts\bin\$(Configuration)\net6.0\RackLoader.Contracts.dll"
+          Pack="true" PackagePath="lib/net6.0/" />
+    <None Include="..\RackLoader.Packer\bin\$(Configuration)\net6.0\RackLoader.Packer.dll"
+          Pack="true" PackagePath="tools\net6.0\" />
+    <None Include="..\RackLoader.Packer\bin\$(Configuration)\net6.0\RackLoader.Packer.deps.json"
+          Pack="true" PackagePath="tools\net6.0\" />
+    <None Include="..\RackLoader.Packer\bin\$(Configuration)\net6.0\RackLoader.Packer.runtimeconfig.json"
+          Pack="true" PackagePath="tools\net6.0\" />
+    <None Include="..\RackLoader.Packer\bin\$(Configuration)\net6.0\RackLoader.Rkm.dll"
+          Pack="true" PackagePath="tools\net6.0\" />
+  </ItemGroup>
+</Project>
+
+
+
