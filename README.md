@@ -43,7 +43,7 @@ Add the package and mod metadata to the mod project's `.csproj`:
     <RackModEntryType>Example.WeatherMod</RackModEntryType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="RackLoader.ModSdk" Version="1.0.0" />
+    <PackageReference Include="RackLoader.ModSdk" Version="1.0.1" />
   </ItemGroup>
 </Project>
 ```

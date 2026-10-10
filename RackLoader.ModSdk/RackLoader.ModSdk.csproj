@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <PackageId>RackLoader.ModSdk</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>RackLoader</Authors>
     <Description>MSBuild packaging and signing SDK for Rack Mod (.rkm) projects targeting Data Center.</Description>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>

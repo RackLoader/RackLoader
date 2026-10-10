@@ -19,12 +19,12 @@ Add one package reference and the mod metadata to the project's `.csproj`:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="RackLoader.ModSdk" Version="1.0.0" />
+    <PackageReference Include="RackLoader.ModSdk" Version="1.0.1" />
   </ItemGroup>
 </Project>
 ```
 
-The package adds the `RackLoader.Contracts` API and references to BepInEx, Harmony, Unity, and Data Center assemblies. By default it looks for the game at `D:\SteamLibrary\steamapps\common\Data Center`; set `<RackModGameDir>` to override it.
+The package adds the `RackLoader.Contracts` API and, by default, compile-time references to every DLL in the game's `BepInEx\core`, `BepInEx\interop`, and `BepInEx\unity-libs` directories. This includes BepInEx, Harmony, Il2CppInterop, Unity, and generated game interop assemblies. These host libraries are not copied into the mod or its `.rkm` package. Set `<RackModIncludeGameReferences>false</RackModIncludeGameReferences>` to disable the references, or set `<RackModGameDir>` to use a different installation. The default game directory is `D:\SteamLibrary\steamapps\common\Data Center`.
 
 Implement the configured public entry type:
 

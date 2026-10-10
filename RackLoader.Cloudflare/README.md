@@ -35,7 +35,7 @@ npm run deploy
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="RackLoader.ModSdk" Version="1.0.0" />
+  <PackageReference Include="RackLoader.ModSdk" Version="1.0.1" />
 </ItemGroup>
 <PropertyGroup>
   <RackModId>example.weather</RackModId>

@@ -7,6 +7,7 @@
     <RackModAssetsDirectory Condition="'$(RackModAssetsDirectory)' == ''">$(MSBuildProjectDirectory)\Assets</RackModAssetsDirectory>
     <RackModGameDir Condition="'$(RackModGameDir)' == ''">D:\SteamLibrary\steamapps\common\Data Center</RackModGameDir>
     <RackModBepInExDir Condition="'$(RackModBepInExDir)' == ''">$(RackModGameDir)\BepInEx</RackModBepInExDir>
+    <RackModIncludeGameReferences Condition="'$(RackModIncludeGameReferences)' == ''">true</RackModIncludeGameReferences>
 
     <_RackLoaderModSdkSourceRoot Condition="Exists('$(MSBuildThisFileDirectory)..\tools\net6.0\RackLoader.Packer.dll')">$(MSBuildThisFileDirectory)..\</_RackLoaderModSdkSourceRoot>
     <_RackLoaderModSdkSourceRoot Condition="'$(_RackLoaderModSdkSourceRoot)' == ''">$(MSBuildThisFileDirectory)..\..\</_RackLoaderModSdkSourceRoot>
@@ -23,33 +24,16 @@
                       ReferenceOutputAssembly="false" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(RackModPack)' == 'true'">
-    <Reference Include="BepInEx.Core">
-      <HintPath>$(RackModBepInExDir)\core\BepInEx.Core.dll</HintPath>
+  <ItemGroup Condition="'$(RackModIncludeGameReferences)' == 'true'">
+    <Reference Include="$(RackModBepInExDir)\core\*.dll"
+               Exclude="$(RackModBepInExDir)\core\dobby.dll"
+               Condition="Exists('$(RackModBepInExDir)\core')">
       <Private>false</Private>
     </Reference>
-    <Reference Include="BepInEx.Unity.IL2CPP">
-      <HintPath>$(RackModBepInExDir)\core\BepInEx.Unity.IL2CPP.dll</HintPath>
+    <Reference Include="$(RackModBepInExDir)\interop\*.dll" Condition="Exists('$(RackModBepInExDir)\interop')">
       <Private>false</Private>
     </Reference>
-    <Reference Include="0Harmony">
-      <HintPath>$(RackModBepInExDir)\core\0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Il2CppInterop.Runtime">
-      <HintPath>$(RackModBepInExDir)\core\Il2CppInterop.Runtime.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(RackModBepInExDir)\core\UnityEngine.CoreModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>$(RackModBepInExDir)\interop\Assembly-CSharp.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>$(RackModBepInExDir)\interop\Assembly-CSharp-firstpass.dll</HintPath>
+    <Reference Include="$(RackModBepInExDir)\unity-libs\*.dll" Condition="Exists('$(RackModBepInExDir)\unity-libs')">
       <Private>false</Private>
     </Reference>
   </ItemGroup>
