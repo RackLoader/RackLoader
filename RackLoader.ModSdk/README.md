@@ -96,3 +96,7 @@ Increment the package version before publishing a new release:
 ```
 
 nuget.org package versions are immutable. Publishing requires a registered NuGet.org account and an API key with push access. The API key is not included in this repository or package.
+
+## License
+
+The NuGet package is licensed under CC BY-NC 4.0. Its license text is included in the package as `LICENSE.txt` and is available at <https://creativecommons.org/licenses/by-nc/4.0/>.
